@@ -2,7 +2,7 @@
   "name": "ai-workspace",
   "version": "0.7.0",
   "private": true,
-  "description": "个人 Windows 双 AI 编程工作台",
+  "description": "Personal Windows AI development workspace",
   "author": "AI Workspace",
   "license": "UNLICENSED",
   "type": "module",

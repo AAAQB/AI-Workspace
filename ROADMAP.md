@@ -1,14 +1,14 @@
-# 后续需求
+# Roadmap
 
-下列内容已完成需求梳理，尚未包含在 0.7.0 的实现中。
+The following requirements have been discussed for a future upgrade. They are not implemented in 0.7.0.
 
-- 完整网站开发：启动和测试前端、后端、本地数据库与登录流程。
-- 按任务需要使用其他文件夹、服务和账号；明确范围并经用户授权，任务结束后授权失效。
-- 默认项目只供当前电脑访问，局域网和互联网访问另行审批。
-- 优先使用项目专用测试数据库、模拟数据与测试账号；真实登录、验证码和扫码由用户接手。
-- 浏览器可查看项目网站并按需查阅公网资料、接口文档；支持手动接管和交回控制。
-- 任务验收后停止软件为任务启动的服务，用户点击“运行项目”时再启动。
-- 保留 GPT 主导、DeepSeek 执行、手动模型和思考强度、任务排队、恢复点、审批及暂停恢复。
-- 依据实际页面交互、后端接口、数据库读写和相关测试，由 GPT 核对完整需求后验收。
+- Run and test complete websites, including frontends, backends, local databases, and login flows.
+- Request explicit, scoped authorization for additional folders, services, or accounts. Task-specific access expires when the task ends.
+- Keep project services accessible only from the current computer by default; request approval before LAN or Internet exposure.
+- Prefer dedicated test databases, synthetic data, test accounts, and simulated email services. Hand real logins, verification codes, and QR authentication to the user.
+- Browse project pages and relevant public documentation, with explicit browser handoff and return of control.
+- Stop services started for a task after acceptance, and provide an action to start the project again.
+- Preserve GPT supervision, DeepSeek execution, manual model and reasoning choices, task queuing, restore points, approvals, and pause/resume.
+- Accept work using actual page interactions, backend responses, database operations, relevant tests, and a final GPT requirements review.
 
-通用 Windows 软件的鼠标键盘操作仍不在本次规划范围内。新功能的实际交付情况应以对应版本的代码、测试和发布说明为准。
+General mouse and keyboard control of other Windows applications remains outside this upgrade scope. Implemented functionality must be assessed from the code, validation results, and release notes for the relevant version.

@@ -30,3 +30,6 @@
 **/native/*.exe
 .DS_Store
 Thumbs.db
+
+# Keep the original local-language delivery guide out of the English repository.
+**/README-*.txt

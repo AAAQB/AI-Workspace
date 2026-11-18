@@ -1,35 +1,35 @@
-# 0.7.0 验证摘要
+# Validation summary: 0.7.0
 
-验证日期：2026-11-18。实测环境为 Windows 11 x64。
+Validation date: 2026-11-18. Tested on Windows 11 x64.
 
-| 检查 | 结果 |
+| Check | Result |
 | --- | --- |
-| TypeScript 检查及 Windows 安装包构建 | 通过 |
-| 核心与运行检查 | 80 项独立检查通过，包含单独启用的 Python 和联网依赖安装检查 |
-| 官方授权组件回归 | 56 项通过，1 项仅适用于 POSIX 的文件权限检查在 Windows 跳过 |
-| 常规桌面与界面回归 | 聊天、文件恢复、审批、需求交互、模型设置和进度显示通过 |
-| 执行详情回归 | 250 条展开日志下，1440、1280、900 像素窗口中的输入、滚动和关闭操作通过 |
-| 安装包启动 | 独立配置下启动 ASAR 应用及官方登录控件通过 |
-| 安装包中的浏览器检查 | 15 项通过，包含真实点击、填写、截图、手机尺寸、网络边界、构建、停止构建和并排聊天 |
-| 运行依赖检查 | 当日 npm audit --omit=dev 未报告已知漏洞 |
+| TypeScript and Windows installer build | Passed |
+| Core and runtime behavior | 80 distinct checks passed, including separately enabled Python and network dependency-install checks |
+| Official authorization component | 56 passed; one POSIX-only file-permission test skipped on Windows |
+| Desktop and interface regressions | Chat, file recovery, approvals, requirement interaction, model settings, and progress checks passed |
+| Expanded execution details | With 250 log entries, typing, scrolling, and closing worked at 1440-, 1280-, and 900-pixel window widths |
+| Packaged application startup | ASAR application and official sign-in controls launched in an isolated profile |
+| Packaged browser checks | 15 passed, including actual clicks, input, screenshots, mobile dimensions, network boundaries, builds, cancellation, and split chat |
+| Production dependency audit | npm audit --omit=dev reported no known vulnerabilities on the validation date |
 
-## 真实模型验收
+## Live-model acceptance
 
-只使用新生成的示例网页，未提交个人项目或已有任务内容。
+Only generated test pages were used. No existing personal project or task content was submitted.
 
-- GPT 与 DeepSeek Flash 均从真实截图中正确读取了随机校验码。
-- DeepSeek 修复示例网页的计数按钮，实际点击两次后由 0 变为 2。
-- 真实页面断言和控制台错误检查通过，截图保存在本机并提供给 GPT 验收。
-- GPT 核对修改、交互证据及截图后完成验收；该轮没有连接重试。
+- GPT and DeepSeek Flash correctly read a randomized code from an actual screenshot.
+- DeepSeek repaired a generated page's counter; two actual clicks changed the count from 0 to 2.
+- Page assertions and console checks passed. Screenshots were retained locally and supplied to GPT for review.
+- GPT accepted the changes using actual tool evidence and screenshots. This run had no connection retries.
 
-这属于功能验收，不构成对所有项目的质量、速度或费用保证。
+These are functional checks, not a general guarantee of quality, speed, cost, or compatibility.
 
-## 实际限制
+## Limitations
 
-- 尚未在另一台 Windows 10 电脑上实测。
-- 尚未完整走查安装与卸载向导的全部路径。
-- 当前是未签名的个人构建。
-- 当前浏览器不提供后端、数据库服务和本地 API 的完整运行环境。
-- 系统开发工具安装没有实际执行；已验证审批拒绝等处理路径。
+- A separate Windows 10 computer has not been tested.
+- The complete installation and uninstallation wizard paths have not been exhaustively tested.
+- This is an unsigned personal build.
+- The embedded preview does not yet host backends, database services, or local APIs.
+- System development tools were not installed during these tests; approval denial and related handling were verified.
 
-原始本地运行记录、账号状态、任务数据库和模型会话未随公开仓库上传。
+Raw local execution records, account state, task databases, and model conversations are not included in this public repository.
