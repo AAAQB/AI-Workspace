@@ -1,6 +1,5 @@
 {
   "product": "AI Workspace",
-  "confirmed": true,
   "platform": [
     "Windows 10",
     "Windows 11"
@@ -32,7 +31,6 @@
     "local_engine": "enforce permissions, execute tools, persist and recover"
   },
   "conversation": {
-    "clarified_by_user_on": "2026-11-17",
     "default_responder": "GPT",
     "ordinary_chat_requires_project": false,
     "ordinary_chat_requires_DeepSeek": false,
@@ -78,7 +76,6 @@
     "automatic extra OpenAI API spending"
   ],
   "interface": {
-    "confirmed_on": "2026-11-17",
     "style": "ChatGPT-like simple monochrome, larger text and generous spacing, light and dark themes",
     "progress": "compact truthful progress card in chat; detailed steps and execution logs open on demand",
     "progress_semantics": "counts actual accepted steps, distinguishes planning, executing, supervision, review, approval, pause and completion; no fabricated ETA or effort percentage",
@@ -94,7 +91,6 @@
     ]
   },
   "decision_interaction": {
-    "confirmed_on": "2026-11-17",
     "priority": [
       "GPT multiple-choice questions",
       "requirements checklist",
@@ -103,11 +99,9 @@
     "questions": "GPT asks only necessary decisions; single or multiple choice plus custom answer; no preselected answer; drafts survive reopening",
     "requirements": "separate explicit user requirements from proposed suggestions; confirmation records content only",
     "reports": "show actual GPT subtask pass or rework results in the main chat, expandable feedback",
-    "authorization": "answers and checklist confirmation never substitute for operation approvals; preserve a recorded explicit development request while clarifying it",
-    "other_advanced_groups": "not selected for this increment"
+    "authorization": "answers and checklist confirmation never substitute for operation approvals; preserve a recorded explicit development request while clarifying it"
   },
   "model_management": {
-    "confirmed_on": "2026-11-17",
     "control": "user manually selects GPT and DeepSeek strengths separately; no mandatory preset",
     "persistence": "remember separately for each model across restart and switching",
     "GPT": "forward reasoning.effort through official authorized Responses requests; show only documented supported levels",
@@ -117,20 +111,17 @@
     "upgrade": "GPT model default and DeepSeek off unless user has made a selection"
   },
   "cooperation_optimization": {
-    "confirmed_on": "2026-11-17",
-    "user_report": "complex and slow workflow; frequent DeepSeek connection retries",
-    "user_selected": "merge final subtask and whole-task acceptance without omitting requirements or actual verification",
+    "final_review": "merge final subtask and whole-task acceptance without omitting requirements or actual verification",
     "handoff": "use a validated GPT task packet directly; otherwise retain independent planning",
     "supervision": "on repeated failure or lack of progress; real file changes and new verification refresh the progress window",
     "context": "summarize completed tool rounds; retain original evidence locally and never remove unfinished calls",
     "retry": "classified diagnostics, adaptive backoff, service Retry-After, no overall task attempt cap",
     "manual_settings": "preserve model and reasoning choices; no automatic paid provider fallback",
-    "diagnosis_privacy": "fixed synthetic messages or new synthetic project only; existing project content was not sent for extra diagnostics"
+    "diagnosis_privacy": "use synthetic messages or test projects for standalone diagnostics"
   },
   "embedded_browser": {
-    "confirmed_on": "2026-11-18",
-    "experience": "preview and test the selected project like current AI coding apps, without requiring framework terminology",
-    "user_choices": [
+    "experience": "preview and test the selected project from the application",
+    "capabilities": [
       "AI automatic browser acceptance plus manual viewing",
       "dedicated web preview tab, retain chat, optional side by side",
       "public webpage resources allowed; other local services, computer files and software accounts inaccessible"

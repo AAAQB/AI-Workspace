@@ -2,7 +2,7 @@
 
 A personal AI development workspace for Windows 10/11. GPT handles conversations, planning, delegation, key implementations, and review. DeepSeek executes development tasks under the local scheduler's permissions.
 
-**Current release: 0.7.0.** The application interface remains in Chinese. Repository documentation, release notes, and download filenames are in English.
+**Current release: 0.7.0.** The application has a Chinese-language interface.
 
 [Download for Windows](https://github.com/AAAQB/AI-Workspace/releases/tag/v0.7.0) | [User and developer guide](outputs/AI-Workspace/USER_GUIDE.md) | [Validation summary](docs/VALIDATION.md) | [Roadmap](ROADMAP.md)
 
@@ -70,7 +70,7 @@ docs/                  Public documentation and validation summary
 work/                  Local build and test output; excluded from Git
 ~~~
 
-The release page contains the installer, an English-documented source archive, a user guide, and SHA-256 checksums. Account credentials, conversation history, personal projects, runtime databases, and raw local execution records are excluded.
+The release page provides the installer, source archive, user guide, and SHA-256 checksums.
 
 ## License and attribution
 

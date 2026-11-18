@@ -1,6 +1,6 @@
 # Roadmap
 
-The following requirements have been discussed for a future upgrade. They are not implemented in 0.7.0.
+Planned features for future releases:
 
 - Run and test complete websites, including frontends, backends, local databases, and login flows.
 - Request explicit, scoped authorization for additional folders, services, or accounts. Task-specific access expires when the task ends.

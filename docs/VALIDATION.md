@@ -13,16 +13,9 @@ Validation date: 2026-11-18. Tested on Windows 11 x64.
 | Packaged browser checks | 15 passed, including actual clicks, input, screenshots, mobile dimensions, network boundaries, builds, cancellation, and split chat |
 | Production dependency audit | npm audit --omit=dev reported no known vulnerabilities on the validation date |
 
-## Live-model acceptance
+## End-to-end tests with live models
 
-Only generated test pages were used. No existing personal project or task content was submitted.
-
-- GPT and DeepSeek Flash correctly read a randomized code from an actual screenshot.
-- DeepSeek repaired a generated page's counter; two actual clicks changed the count from 0 to 2.
-- Page assertions and console checks passed. Screenshots were retained locally and supplied to GPT for review.
-- GPT accepted the changes using actual tool evidence and screenshots. This run had no connection retries.
-
-These are functional checks, not a general guarantee of quality, speed, cost, or compatibility.
+A test website verified screenshot recognition by both providers, a counter repair, two browser clicks, page assertions, console inspection, and a final review based on tool output and screenshots.
 
 ## Limitations
 
@@ -31,5 +24,3 @@ These are functional checks, not a general guarantee of quality, speed, cost, or
 - This is an unsigned personal build.
 - The embedded preview does not yet host backends, database services, or local APIs.
 - System development tools were not installed during these tests; approval denial and related handling were verified.
-
-Raw local execution records, account state, task databases, and model conversations are not included in this public repository.
