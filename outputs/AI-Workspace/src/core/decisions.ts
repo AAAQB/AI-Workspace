@@ -1,0 +1,17 @@
+import{z}from'zod';import{randomUUID}from'node:crypto';import type{Chat,ChatTurn,QuestionSet,QuestionAnswer,Requirement}from'../shared';
+export const QuestionSpec=z.object({prompt:z.string().trim().min(1).max(2000),multiple:z.boolean().default(false),options:z.array(z.object({label:z.string().trim().min(1).max(300),description:z.string().max(1000).default(''),recommended:z.boolean().default(false)})).max(6).default([])}).refine(q=>q.options.length!==1,'选择题至少提供两个选项');
+export const AnswerList=z.array(z.object({questionId:z.string().min(1).max(200),optionIds:z.array(z.string().min(1).max(200)).max(6),custom:z.string().max(10000)}).strict()).max(3);
+export const RequirementSpec=z.object({id:z.string().max(200).default(''),text:z.string().trim().min(1).max(2000),sourceMessageId:z.string().max(200).default(''),sourceQuote:z.string().max(2000).default('')});
+export function pendingQuestion(c:Chat){return c.messages.find(m=>m.question?.id===c.pendingQuestionId)?.question;}
+export function questionFor(c:Chat,id:string){const q=c.messages.find(m=>m.question?.id===id)?.question;if(!q)throw new Error('找不到这组问题。');return q;}
+export function validateAnswers(q:QuestionSet,input:QuestionAnswer[],complete:boolean){
+ const answers=AnswerList.parse(input);if(new Set(answers.map(a=>a.questionId)).size!==answers.length)throw new Error('同一个问题不能提交两份回答。');
+ for(const answer of answers){const item=q.items.find(i=>i.id===answer.questionId);if(!item)throw new Error('回答不属于这组问题。');if(new Set(answer.optionIds).size!==answer.optionIds.length||answer.optionIds.some(id=>!item.options.some(o=>o.id===id)))throw new Error('选项已变化，请重新选择。');if(!item.multiple&&answer.optionIds.length>1)throw new Error('这个问题只可选择一个选项。');}
+ if(complete)for(const item of q.items){const a=answers.find(a=>a.questionId===item.id);if(!a||!a.optionIds.length&&!a.custom.trim())throw new Error('请回答每个问题；也可以只填写补充说明。');}
+ return answers.map(a=>({...a,custom:a.custom.trim()}));
+}
+export function answerText(q:QuestionSet,answers:QuestionAnswer[]){return'我对 GPT 问题的回答：\n'+q.items.map((item,i)=>{const a=answers.find(a=>a.questionId===item.id)!;return`${i+1}. ${item.prompt}\n`+(a.optionIds.length?'选择：'+item.options.filter(o=>a.optionIds.includes(o.id)).map(o=>o.label).join('；')+'\n':'')+(a.custom?'补充：'+a.custom:'')}).join('\n\n')+'\n\n这些回答用于明确需求；删除、安装、上传等重要操作仍须单独审批。';}
+export function applyRequirements(c:Chat,inputs:z.infer<typeof RequirementSpec>[]){let changed=false;const entries=c.requirements||[];
+ for(const input of inputs){const existing=entries.find(r=>input.id?r.id===input.id:r.text===input.text);const source=c.messages.find(m=>m.role==='user'&&m.id===input.sourceMessageId);const quoted=!!source&&!!input.sourceQuote.trim()&&source.content.includes(input.sourceQuote);const status=quoted?'confirmed':existing?.text===input.text&&existing.status==='confirmed'?'confirmed':'proposed';const entry:Requirement={id:existing?.id||randomUUID(),text:input.text,status,...(quoted?{sourceMessageId:source!.id,sourceQuote:input.sourceQuote}:existing?.text===input.text&&existing.status==='confirmed'?{sourceMessageId:existing.sourceMessageId,sourceQuote:existing.sourceQuote}:{})};if(!existing){entries.push(entry);changed=true}else if(JSON.stringify(existing)!==JSON.stringify(entry)){Object.assign(existing,entry);if(status==='proposed'){delete existing.sourceMessageId;delete existing.sourceQuote}changed=true}}
+ if(changed){c.requirements=entries;c.requirementsRevision=(c.requirementsRevision||0)+1;}return changed;
+}

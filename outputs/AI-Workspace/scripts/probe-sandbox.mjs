@@ -1,0 +1,12 @@
+import { spawn } from 'node:child_process';
+import { mkdir,writeFile,readFile } from 'node:fs/promises';
+import path from 'node:path';
+const root=path.resolve('../../work/sandbox-probe'),stage=path.join(root,'stage'),canary=path.join(root,'private.txt');
+await mkdir(stage,{recursive:true});await writeFile(canary,'private-canary');
+const script=`const fs=require('fs');let denied=0;fs.writeFileSync('inside.txt','inside-ok');for(const fn of [()=>fs.readFileSync(${JSON.stringify(canary)}),()=>fs.writeFileSync(${JSON.stringify(canary)},'escaped')]){try{fn()}catch(e){if(['EACCES','EPERM'].includes(e.code))denied++}};console.log(JSON.stringify({denied,inside:fs.readFileSync('inside.txt','utf8')}));process.exit(denied===2?0:1)`;
+const env={SystemRoot:process.env.WINDIR,WINDIR:process.env.WINDIR,SystemDrive:process.env.SystemDrive,TEMP:stage,TMP:stage,PATH:path.dirname(process.execPath),USERPROFILE:stage,HOME:stage,LOCALAPPDATA:process.env.LOCALAPPDATA};
+const helper=spawn(path.resolve('native/SandboxRunner.exe'),[],{windowsHide:true,stdio:['pipe','pipe','pipe']});
+let out='',err='';helper.stdout.on('data',b=>out+=b);helper.stderr.on('data',b=>err+=b);
+helper.stdin.write(JSON.stringify({stage,cwd:stage,file:process.execPath,args:['-e',script],runtimeRoots:[],network:false,env})+'\n');
+const code=await new Promise((resolve,reject)=>{helper.on('close',resolve);helper.on('error',reject)});
+console.log(JSON.stringify({code,stdout:out,stderr:err,canary:await readFile(canary,'utf8')}));process.exitCode=code===0?0:1;

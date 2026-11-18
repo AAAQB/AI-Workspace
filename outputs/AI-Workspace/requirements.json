@@ -1,0 +1,156 @@
+{
+  "product": "AI Workspace",
+  "confirmed": true,
+  "platform": [
+    "Windows 10",
+    "Windows 11"
+  ],
+  "usage": "single-user personal local desktop application",
+  "language": "zh-CN",
+  "primary_work": [
+    "web applications",
+    "Windows desktop applications",
+    "Python tools",
+    "existing project maintenance"
+  ],
+  "first_release": [
+    "real model connections",
+    "chat interface",
+    "task history",
+    "project files",
+    "approvals",
+    "file restore points",
+    "interruption recovery",
+    "usage display",
+    "Windows installer",
+    "source code",
+    "user guide"
+  ],
+  "roles": {
+    "GPT": "default conversational assistant in every chat; understand and discuss user needs; plan, delegate, review each subtask, request rework, final acceptance",
+    "DeepSeek": "subordinate execution agent invoked by GPT for development work; execute assigned work and report tool evidence",
+    "local_engine": "enforce permissions, execute tools, persist and recover"
+  },
+  "conversation": {
+    "clarified_by_user_on": "2026-11-17",
+    "default_responder": "GPT",
+    "ordinary_chat_requires_project": false,
+    "ordinary_chat_requires_DeepSeek": false,
+    "development_delegation": "GPT controls DeepSeek as a subordinate executor",
+    "quality_goal": "reduce expensive execution work while retaining GPT understanding, decisions, review and acceptance",
+    "development_start": "automatic only after explicit user request to make, modify or begin development; discussion remains chat",
+    "execution_visibility": "main chat contains user and GPT only; DeepSeek and tools appear in expandable execution details",
+    "GPT_direct_contribution": "GPT can design and write critical code, then delegate file application, execution and verification to DeepSeek",
+    "continued_chat": "preserve one conversation across discussion, development and further changes"
+  },
+  "authentication": {
+    "GPT": "official Sign in with ChatGPT using existing Plus account",
+    "DeepSeek": "user API key",
+    "password_or_cookie_extraction": false,
+    "automatic_OpenAI_API_fallback": false
+  },
+  "permissions": {
+    "default_scope": "user-selected project directory",
+    "modify_existing_files": "automatic with prior restore point",
+    "delete_existing_files": "ask each time",
+    "outside_project_access": "ask",
+    "project_dependencies": "automatic",
+    "global_development_tools_and_system_changes": "ask",
+    "local_versions": "automatic",
+    "upload_create_remote_repository_deploy_publish": "ask"
+  },
+  "operation": {
+    "autonomy": "high",
+    "parallel_tasks": 1,
+    "others": "queue",
+    "close_window": "pause and save",
+    "restart": "resume on user action",
+    "runtime_limit": null,
+    "rework_limit": null,
+    "DeepSeek_cost_limit": null,
+    "GPT_unavailable_or_usage_exhausted": "pause and save"
+  },
+  "completion": "deliverables satisfy agreed requirements, relevant execution checks pass for current files, GPT accepts automatically",
+  "excluded_from_first_release": [
+    "general mouse and keyboard automation",
+    "other Windows application UI control",
+    "unofficial login",
+    "automatic extra OpenAI API spending"
+  ],
+  "interface": {
+    "confirmed_on": "2026-11-17",
+    "style": "ChatGPT-like simple monochrome, larger text and generous spacing, light and dark themes",
+    "progress": "compact truthful progress card in chat; detailed steps and execution logs open on demand",
+    "progress_semantics": "counts actual accepted steps, distinguishes planning, executing, supervision, review, approval, pause and completion; no fabricated ETA or effort percentage",
+    "conveniences": [
+      "Markdown headings, lists, tables and fenced code",
+      "copy code and messages",
+      "chat title search and rename",
+      "conversation export",
+      "auto-growing input",
+      "return to latest message",
+      "collapsible sidebar",
+      "narrow-window details overlay"
+    ]
+  },
+  "decision_interaction": {
+    "confirmed_on": "2026-11-17",
+    "priority": [
+      "GPT multiple-choice questions",
+      "requirements checklist",
+      "stage reports"
+    ],
+    "questions": "GPT asks only necessary decisions; single or multiple choice plus custom answer; no preselected answer; drafts survive reopening",
+    "requirements": "separate explicit user requirements from proposed suggestions; confirmation records content only",
+    "reports": "show actual GPT subtask pass or rework results in the main chat, expandable feedback",
+    "authorization": "answers and checklist confirmation never substitute for operation approvals; preserve a recorded explicit development request while clarifying it",
+    "other_advanced_groups": "not selected for this increment"
+  },
+  "model_management": {
+    "confirmed_on": "2026-11-17",
+    "control": "user manually selects GPT and DeepSeek strengths separately; no mandatory preset",
+    "persistence": "remember separately for each model across restart and switching",
+    "GPT": "forward reasoning.effort through official authorized Responses requests; show only documented supported levels",
+    "DeepSeek": "off, low, high, max for verified models; retain reasoning_content for execution tool continuation without exposing it in chat or GPT review",
+    "unrecognized_model": "keep previous provider behavior until available levels are verified",
+    "unsupported_selection": "reject with an explanation, never silently reduce or call a paid fallback",
+    "upgrade": "GPT model default and DeepSeek off unless user has made a selection"
+  },
+  "cooperation_optimization": {
+    "confirmed_on": "2026-11-17",
+    "user_report": "complex and slow workflow; frequent DeepSeek connection retries",
+    "user_selected": "merge final subtask and whole-task acceptance without omitting requirements or actual verification",
+    "handoff": "use a validated GPT task packet directly; otherwise retain independent planning",
+    "supervision": "on repeated failure or lack of progress; real file changes and new verification refresh the progress window",
+    "context": "summarize completed tool rounds; retain original evidence locally and never remove unfinished calls",
+    "retry": "classified diagnostics, adaptive backoff, service Retry-After, no overall task attempt cap",
+    "manual_settings": "preserve model and reasoning choices; no automatic paid provider fallback",
+    "diagnosis_privacy": "fixed synthetic messages or new synthetic project only; existing project content was not sent for extra diagnostics"
+  },
+  "embedded_browser": {
+    "confirmed_on": "2026-11-18",
+    "experience": "preview and test the selected project like current AI coding apps, without requiring framework terminology",
+    "user_choices": [
+      "AI automatic browser acceptance plus manual viewing",
+      "dedicated web preview tab, retain chat, optional side by side",
+      "public webpage resources allowed; other local services, computer files and software accounts inaccessible"
+    ],
+    "scope": "static HTML and built frontends; backend/dev-server hosting not included in this increment",
+    "automation": [
+      "observe",
+      "click",
+      "fill",
+      "select",
+      "keys",
+      "scroll",
+      "viewport",
+      "screenshot",
+      "content/value assertions",
+      "console errors"
+    ],
+    "verification": "current file fingerprint; build freshness for dist/build/out; screenshot alone never passes acceptance",
+    "account_isolation": "temporary per-preview session, no workspace bridge, no existing app accounts",
+    "external_writes": "blocked; public resource reads allowed",
+    "model_quality": "GPT receives actual screenshots for review; verified vision DeepSeek can receive screenshots; no automatic provider or strength change"
+  }
+}

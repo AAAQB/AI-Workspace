@@ -1,0 +1,4 @@
+export interface ModelDiagnostic{kind:string;phase?:string;status?:number;networkCode?:string;serviceCode?:string;parameter?:string;requestId?:string;elapsedMs?:number;bytesReceived?:number;finishReason?:string;retryAfterMs?:number;headerMs?:number;firstByteMs?:number;inputChars?:number}
+export class ModelError extends Error{constructor(public code:string,message:string,public retryable=false,public diagnostic?:ModelDiagnostic){super(message);}}
+export function retryDelay(attempt:number,retryAfterMs=0){const schedule=[1000,4000,10000,30000,60000];return Math.max(schedule[Math.min(Math.max(0,attempt-1),schedule.length-1)],retryAfterMs);}
+export function retryAfter(value:string|null,now=Date.now()){if(!value)return;const seconds=Number(value),ms=Number.isFinite(seconds)?seconds*1000:Date.parse(value)-now;return Number.isFinite(ms)&&ms>=0&&ms<=86400000?ms:undefined;}

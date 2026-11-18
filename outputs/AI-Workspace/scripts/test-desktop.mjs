@@ -1,0 +1,50 @@
+import { _electron as electron } from 'playwright';
+import electronPath from 'electron';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+import { randomUUID } from 'node:crypto';
+import {DatabaseSync}from'node:sqlite';
+const root=path.resolve('../../work/desktop-test-'+randomUUID());await mkdir(root,{recursive:true});
+const resultDir=path.resolve('../../outputs');const errors=[];
+const env={...process.env,AIW_TEST_MODE:'1',AIW_DATA_DIR:root};delete env.ELECTRON_RUN_AS_NODE;
+let desktop;
+async function screenshot(file){await (await desktop.firstWindow()).evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));const data=await desktop.evaluate(async({BrowserWindow})=>{const image=await BrowserWindow.getAllWindows()[0].webContents.capturePage(undefined,{stayHidden:true,stayAwake:true});return image.resize({width:1440}).toPNG().toString('base64')});await writeFile(file,Buffer.from(data,'base64'));}
+try{
+ desktop=await electron.launch({executablePath:electronPath,args:['.'],cwd:process.cwd(),env,timeout:30000});
+ const page=await desktop.firstWindow();page.on('pageerror',e=>errors.push(e.message));
+ await page.getByRole('heading',{name:'先聊想法，再一起完成。'}).waitFor({timeout:20000});
+ assert.equal(await page.locator('body').evaluate(e=>e.scrollWidth>e.clientWidth),false);
+ await screenshot(path.join(resultDir,'AI-Workspace-界面预览.png'));
+ await page.getByRole('button',{name:/账号与设置/}).click();
+ await page.getByRole('dialog',{name:'账号与设置'}).waitFor();
+ assert.equal(await page.getByLabel('DeepSeek API Key').getAttribute('type'),'password');
+ assert.equal(await page.getByRole('button',{name:'Continue with ChatGPT'}).isEnabled(),true);
+ await page.getByRole('button',{name:'深色',exact:true}).click();
+ await page.waitForFunction(()=>document.documentElement.dataset.theme==='dark');
+ await page.locator('.settings-scroll').evaluate(e=>e.scrollTop=0);
+ await screenshot(path.join(resultDir,'AI-Workspace-账号设置.png'));
+ await page.getByRole('button',{name:'浅色',exact:true}).click();
+ await page.waitForFunction(()=>document.documentElement.dataset.theme==='light');
+ await page.getByRole('button',{name:'关闭设置'}).click();
+ await page.getByRole('button',{name:/讨论一个想法/}).click();
+ assert.match(await page.getByRole('textbox',{name:'聊天消息'}).inputValue(),/记账/);
+ assert.equal(await page.locator('.inspector').count(),0);await page.getByRole('button',{name:'显示或隐藏任务面板'}).click();assert.equal(await page.locator('.inspector').count(),1);await page.getByRole('button',{name:'关闭任务面板'}).click();assert.equal(await page.locator('.inspector').count(),0);
+ const surface=await page.evaluate(async()=>{const s=await window.workspace.snapshot();return{keys:Object.keys(window.workspace),serialized:JSON.stringify(s),busy:s.busy};});
+ assert.equal(surface.busy,false);assert.doesNotMatch(surface.serialized,/access_token|refresh_token|accessToken|refreshToken/);
+ assert.deepEqual(errors,[]);
+ await desktop.close();desktop=undefined;
+ // A separate, explicitly offline fixture checks the real file and recovery UI.
+ const project=path.join(root,'fixture-project');await mkdir(project,{recursive:true});await writeFile(path.join(project,'example.txt'),'original <script>not executable</script>\n');
+ const now=Date.now(),task={id:'desktop-fixture',title:'离线界面验证任务',goal:'检查文件编辑与恢复',project,status:'running',phase:'execute',plan:[{id:'fixture-step',title:'检查文件',instruction:'检查',acceptance:['可以恢复原内容'],requiresRuntimeCheck:false,state:'pending',attempts:0}],index:0,messages:[],revision:0,verifiedRevision:-1,created:now,updated:now};
+ const db=new DatabaseSync(path.join(root,'workspace.sqlite'));db.prepare('INSERT INTO tasks VALUES(?,?)').run(task.id,JSON.stringify(task));db.prepare('INSERT INTO events(taskId,time,kind,actor,text) VALUES(?,?,?,?,?)').run(task.id,now,'message','DeepSeek','DS-EXECUTION-DETAIL-ONLY');db.close();
+ desktop=await electron.launch({executablePath:electronPath,args:['.'],cwd:process.cwd(),env,timeout:30000});const fixture=await desktop.firstWindow();fixture.on('pageerror',e=>errors.push(e.message));
+ await fixture.locator('.task-card [role=status]').filter({hasText:'已暂停'}).waitFor();await fixture.getByRole('button',{name:'查看任务步骤'}).click();assert.equal(await fixture.locator('.messages').getByText('DS-EXECUTION-DETAIL-ONLY').count(),0);assert.equal(await fixture.locator('.execution-details').getAttribute('open'),null);await fixture.locator('.execution-details>summary').click();await fixture.locator('.execution-details').getByText('DS-EXECUTION-DETAIL-ONLY').waitFor();
+ await fixture.getByRole('button',{name:'项目文件',exact:true}).click();await fixture.getByRole('button',{name:'example.txt',exact:true}).click();
+ await fixture.getByRole('textbox',{name:'文件内容'}).fill('edited content\n');await fixture.getByRole('button',{name:'保存并建立恢复点'}).click();
+ await fixture.waitForFunction(()=>document.querySelector('.editor-header button')?.disabled===true);assert.equal(await readFile(path.join(project,'example.txt'),'utf8'),'edited content\n');
+ await fixture.getByRole('button',{name:'恢复点',exact:true}).click();await fixture.getByRole('button',{name:'恢复',exact:true}).first().click();await fixture.getByText('手动恢复前的版本',{exact:false}).waitFor();assert.equal(await readFile(path.join(project,'example.txt'),'utf8'),'original <script>not executable</script>\n');
+ assert.equal(await fixture.evaluate(async()=>{try{await window.workspace.readFile('desktop-fixture','../outside.txt');return false}catch{return true}}),true);
+ await fixture.keyboard.press('Control+n');await fixture.getByRole('heading',{name:'先聊想法，再一起完成。'}).waitFor();assert.deepEqual(errors,[]);
+ console.log(JSON.stringify({passed:true,checks:['desktop launches','Chinese conversation view','no horizontal overflow','credentials input masked','official sign-in action','light and dark themes','goal examples','inspector toggle','IPC snapshot excludes credentials','reopen recovers paused task','project file editor writes content','restore point UI restores original content','IPC rejects project traversal','new chat keyboard shortcut','DeepSeek messages absent from main chat','execution details collapsed by default'],screenshots:['AI-Workspace-界面预览.png','AI-Workspace-账号设置.png']}));
+}finally{if(desktop)await desktop.close()}

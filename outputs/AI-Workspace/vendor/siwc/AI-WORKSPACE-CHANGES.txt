@@ -1,0 +1,15 @@
+AI Workspace local modifications, 2026-11-18
+Upstream source: OpenAI Sign in with ChatGPT DevKit,
+commit 0a36fefeb913055c8c7a1a29b63d82b96b2e841a.
+
+Changed packages/local/src/types.ts to add optional reasoningEffort and
+responseSchema fields, plus inline text/image message content.
+Changed packages/local/src/responses.ts to validate reasoning effort, forward
+the official reasoning.effort and strict text.format schema parameters, and
+validate inline image data and stop on a refusal event instead of treating it as an empty JSON reply.
+Generated packages/local/dist files reflect these two source modifications.
+
+Authentication, registration, consent, encrypted credential storage, token
+refresh, account switching, revocation and admission handling are unchanged.
+These modifications are licensed under the same Sign in with ChatGPT DevKit
+Noncommercial License v1.0 in LICENSE. No additional restrictions are imposed.

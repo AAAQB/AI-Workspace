@@ -1,0 +1,17 @@
+AI Workspace is a personal-use application, independently authored for its owner.
+
+The Sign in with ChatGPT DevKit local SDK is copyright 2026 OpenAI
+and licensed under its Noncommercial License v1.0. Its license and notices are
+included in vendor/siwc and bundled dist/notices. Use of the SDK and OpenAI
+services remains subject to their respective terms. This application is not an
+OpenAI product and is not endorsed by OpenAI.
+
+AI Workspace locally extends the SDK response types and request serializer to
+forward reasoning.effort, strict text.format and inline image input, and stop
+on refusal events.
+Authentication code is unchanged. See
+vendor/siwc/AI-WORKSPACE-CHANGES.txt and the bundled change notice. These SDK
+modifications are licensed under the same Noncommercial License v1.0.
+
+Other dependencies retain their own licenses; see package-lock.json and
+dist/notices/dependencies.json for the installed dependency inventory.

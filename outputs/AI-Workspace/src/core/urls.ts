@@ -1,0 +1,1 @@
+export function webUrl(value:string){if(value.length>8000)throw new Error('链接过长。');let url:URL;try{url=new URL(value)}catch{throw new Error('链接格式不正确。')}if(!['https:','http:'].includes(url.protocol)||url.username||url.password)throw new Error('只能打开普通网页链接。');return url.href;}

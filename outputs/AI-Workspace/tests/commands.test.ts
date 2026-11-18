@@ -1,0 +1,31 @@
+import{test}from'node:test';import assert from'node:assert/strict';import{promises as fs}from'node:fs';import path from'node:path';import{randomUUID}from'node:crypto';import{Store}from'../src/core/store';import{Runner}from'../src/core/runner';import{ToolBroker}from'../src/core/tools';import type{ToolCall}from'../src/shared';
+import{Engine}from'../src/core/engine';import{PlanPrompt,ReviewPrompt}from'../src/core/contracts';
+const call=(name:string,args:unknown):ToolCall=>({id:randomUUID(),type:'function',function:{name,arguments:JSON.stringify(args)}});
+test('long commands return a job, block concurrent edits, and can be stopped without cancelling the task',{skip:process.platform!=='win32',timeout:60000},async()=>{
+ const base=path.resolve('../../work/command-tests');await fs.mkdir(base,{recursive:true});const dir=await fs.mkdtemp(path.join(base,'case-')),project=path.join(dir,'project');await fs.mkdir(project);const store=new Store(path.join(dir,'data')),runner=new Runner(path.resolve('native/SandboxRunner.exe'),store.directory,async()=>false,()=>{}),broker=new ToolBroker(store,runner,async()=>false,5);const task=store.create('command controls',project);task.status='running';store.save(task);const signal=new AbortController().signal;
+ try{
+  const start=JSON.parse(await broker.execute(task,call('run_command',{program:'node',args:['-e',"console.log('running');setInterval(()=>{},1000)"],cwd:'',purpose:'execute'}),signal));assert.equal(start.result.running,true);const jobId=start.result.jobId;
+  assert.equal(JSON.parse(await broker.execute(task,call('write_file',{path:'unexpected.txt',content:'no',expectedHash:''}),signal)).ok,false);
+  const other=store.create('another task',project);assert.equal(JSON.parse(await broker.execute(other,call('check_command',{jobId,waitMs:0}),signal)).ok,false);
+  const stopped=JSON.parse(await broker.execute(task,call('stop_command',{jobId}),signal));assert.equal(stopped.ok,false);assert.match(stopped.error,/停止/);assert.equal(task.status,'running');assert.equal(broker.hasPendingCommand(task.id),false);
+  const run=JSON.parse(await broker.execute(task,call('run_command',{program:'node',args:['-e',"require('fs').writeFileSync('result.txt','verified');console.log('passed')"],cwd:'',purpose:'verify'}),signal));let result=run;
+  while(result.result?.running)result=JSON.parse(await broker.execute(task,call('check_command',{jobId:run.result.jobId,waitMs:10000}),signal));
+  assert.equal(result.ok,true,result.error);assert.equal(result.result.exitCode,0);assert.equal(task.verifiedRevision,task.revision);assert.equal(await fs.readFile(path.join(project,'result.txt'),'utf8'),'verified');
+ }finally{await broker.stopAll(task.id);store.close()}
+});
+test('a persisted running result cannot become a phantom job after restart',async()=>{
+ const base=path.resolve('../../work/command-tests');await fs.mkdir(base,{recursive:true});const dir=await fs.mkdtemp(path.join(base,'restart-')),project=path.join(dir,'project');await fs.mkdir(project);const store=new Store(path.join(dir,'data'));
+ const runner=new Runner('',store.directory,async()=>false,()=>{});let launches=0;
+ runner.run=async(_id,_files,_spec,signal)=>{launches++;return new Promise((_resolve,reject)=>{signal.addEventListener('abort',()=>reject(new Error('interrupted')),{once:true})})};
+ const task=store.create('restart',project),request=call('run_command',{program:'node',args:[],cwd:'',purpose:'verify'}),signal=new AbortController().signal;
+ const broker=new ToolBroker(store,runner,async()=>false,1);
+ try{const start=JSON.parse(await broker.execute(task,request,signal));assert.equal(start.result.running,true);await broker.stopAll(task.id);const restored=new ToolBroker(store,runner,async()=>false,1);const result=JSON.parse(await restored.execute(task,request,signal));assert.equal(result.ok,false);assert.match(result.error,/中断/);assert.equal(launches,1);assert.equal(restored.hasPendingCommand(task.id),false);assert.equal(task.verifiedRevision,-1);}finally{await broker.stopAll(task.id);store.close()}
+});
+test('background installer approval keeps the engine waiting and denial reaches the executor',async()=>{
+ const base=path.resolve('../../work/command-tests');await fs.mkdir(base,{recursive:true});const dir=await fs.mkdtemp(path.join(base,'approval-')),project=path.join(dir,'project');await fs.mkdir(project);const store=new Store(path.join(dir,'data'));let engine:Engine;let jobId='';let executions=0;let sawDenial=false;
+ const runner=new Runner('',store.directory,(...args)=>engine.approve(...args),()=>{});
+ runner.installTool=async(_tool,_reason,signal)=>{const yes=await engine.approve('测试安装审批','此测试不会安装任何软件',{test:true},signal);if(!yes)throw new Error('用户拒绝安装');throw new Error('No installation is allowed in this test')};
+ const broker=new ToolBroker(store,runner,(...args)=>engine.approve(...args),1);
+ engine=new Engine(store,{gpt:async(_id,p)=>p===PlanPrompt?JSON.stringify({summary:'测试审批',tasks:[{title:'请求审批',instruction:'测试',acceptance:['拒绝后保留结果'],requiresRuntimeCheck:false}]}):p===ReviewPrompt?JSON.stringify({decision:'pass',feedback:'拒绝已记录'}):JSON.stringify({decision:'complete',summary:'测试完成',tasks:[]}),deepseek:async(_id,messages)=>{executions++;if(executions===1)return{content:'',tool_calls:[call('install_development_tool',{tool:'node_lts',reason:'测试'})]};const last=JSON.parse(messages.filter(m=>m.role==='tool').at(-1)!.content!);if(last.result?.running){jobId=last.result.jobId;return{content:'',tool_calls:[call('check_command',{jobId,waitMs:10000})]}}sawDenial=last.ok===false&&/拒绝/.test(last.error);return{content:'已记录拒绝，没有安装软件。'}}},broker,()=>{});
+ try{const id=engine.create('测试审批',project);const deadline=Date.now()+5000;while(!store.approvals(id).length&&Date.now()<deadline)await new Promise(r=>setTimeout(r,10));await new Promise(r=>setTimeout(r,80));assert.equal(engine.current?.status,'awaiting_approval');assert.equal(executions,1);const approval=store.approvals(id).find(a=>a.decision==='pending')!;engine.decide(approval.id,'denied');await engine.settled();assert.equal(sawDenial,true);assert.equal(store.task(id).status,'completed');assert.equal(store.approvals(id)[0].decision,'denied');}finally{await engine.pauseAll();await engine.settled();store.close()}
+});

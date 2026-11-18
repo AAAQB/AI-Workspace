@@ -1,0 +1,72 @@
+{
+  "name": "ai-workspace",
+  "version": "0.7.0",
+  "private": true,
+  "description": "个人 Windows 双 AI 编程工作台",
+  "author": "AI Workspace",
+  "license": "UNLICENSED",
+  "type": "module",
+  "main": "dist/main.cjs",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test tests/*.test.ts",
+    "start": "electron .",
+    "package": "npm run build && electron-builder --win nsis --x64",
+    "test:desktop": "node scripts/test-desktop.mjs"
+  },
+  "dependencies": {
+    "@siwc/local": "file:vendor/siwc/packages/local",
+    "lucide-react": "^0.577.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
+    "zod": "^4.3.6",
+    "openai": "7.57.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.0",
+    "@types/proper-lockfile": "^4.1.4",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "electron": "45.3.2",
+    "electron-builder": "26.18.0",
+    "esbuild": "0.28.2",
+    "playwright": "^1.58.2",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2"
+  },
+  "build": {
+    "appId": "personal.aiworkspace.desktop",
+    "productName": "AI Workspace",
+    "directories": {
+      "output": "../../work/final-release"
+    },
+    "files": [
+      "dist/**/*",
+      "package.json",
+      "LICENSE-NOTICES.txt"
+    ],
+    "extraResources": [
+      {
+        "from": "native/SandboxRunner.exe",
+        "to": "SandboxRunner.exe"
+      }
+    ],
+    "asar": true,
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico",
+      "signExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "artifactName": "AI-Workspace-${version}-Setup-x64.exe",
+      "deleteAppDataOnUninstall": false
+    }
+  }
+}
